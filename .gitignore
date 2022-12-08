@@ -1,0 +1,9 @@
+#folder
+bin
+
+#exec
+*.out
+*.exe
+
+#others
+notas
