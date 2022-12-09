@@ -2,7 +2,11 @@
 #include "aes_cipher.h"
 #include "aes_inv_cipher.h"
 
+#ifdef _linux_
 #include <argp.h>
+#else
+#include "argp.h"
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -38,6 +42,7 @@ void parse_key(char *arg, struct arguments * arguments)
 		if (arg[length++] == 0x00) 
 				break;
 	}
+    length--;
 
 	switch(length) {
 		case 16:

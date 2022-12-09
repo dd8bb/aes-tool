@@ -1,15 +1,9 @@
-#folders
-bin
-lib
-CMakeFiles
-
 # Prerequisites
 *.d
 
-#object files
+# Object files
 *.o
 *.ko
-*.i
 *.obj
 *.elf
 
@@ -34,13 +28,19 @@ CMakeFiles
 *.so.*
 *.dylib
 
-#exec
-*.out
+# Executables
 *.exe
+*.out
 *.app
 *.i*86
 *.x86_64
 *.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
 
 # Kernel Module Compile Results
 *.mod*
@@ -51,5 +51,5 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#others
-notas
+# Build directory in top level source directory
+/build*
