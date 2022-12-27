@@ -1,0 +1,8 @@
+- Custom make install option
+- Check system for installing argp library (Darwin and Win32)
+- Improve line arguments
+- Add option to input/output files
+- change -? to -h to show help
+- Test build for windows, linux and macos
+- Improve main CMakeLists.txt
+- Remove redundancy cmake files on argp library

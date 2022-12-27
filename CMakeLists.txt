@@ -4,10 +4,12 @@ set(AES_TOOL_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${AES_TOOL_PATH}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${AES_TOOL_PATH}/lib")
 
+#Install argp library if needed
+include_directories("${AES_TOOL_PATH}/argp/include/argp-standalone")
 
-include_directories("${AES_TOOL_PATH}/3rd_parties/argp/include/argp-standalone")
+include("${AES_TOOL_PATH}/argp/CMakeLists.txt")
+#----
 
-include("${AES_TOOL_PATH}/3rd_parties/argp/CMakeLists.txt")
 
 project(aes-tool VERSION 0.0.0 LANGUAGES C)
 
@@ -23,5 +25,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 		"${AES_TOOL_PATH}/aes_core.c"
         "${AES_TOOL_PATH}/aes_cipher.h"
         "${AES_TOOL_PATH}/aes_inv_cipher.h"
+        "${AES_TOOL_PATH}/base_64.h"
 	)
 

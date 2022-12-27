@@ -1,6 +1,7 @@
 #include "aes_const.h"
 #include "aes_cipher.h"
 #include "aes_inv_cipher.h"
+#include "base_64.h"
 
 #ifdef _linux_
 #include <argp.h>
@@ -11,6 +12,17 @@
 #include <stdio.h>
 #include <string.h>
 
+
+int str_len(char * str) {
+    int length = 0;
+	while(1) {
+        if (str[length++] == 0x00)
+			break;
+	}
+	length--;
+
+	return length;
+}
 
 
 const char *argp_program_version = "aes-tool 0.0.0";
@@ -36,14 +48,8 @@ struct arguments {
 
 void parse_key(char *arg, struct arguments * arguments)
 {
-	int length = 0;
-	while (1) {
-        printf("%c", arg[length]);
-		if (arg[length++] == 0x00) 
-				break;
-	}
-    length--;
-
+	int length = str_len(arg);
+	
 	switch(length) {
 		case 16:
 			{
@@ -82,7 +88,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     case 'e': {arguments->aes = &AES_cipher; arguments->mode = ENCRYPT;} break;
     case 'd': {arguments->aes = &AES_inv_cipher; arguments->mode = DECRYPT;} break;
     case 'k': parse_key(arg, arguments); break;
-    case ARGP_KEY_ARG: {arguments->input = arg; return 0;}
+    case ARGP_KEY_ARG: {arguments->input = (uint8_t *)arg; return 0;}
     default: return ARGP_ERR_UNKNOWN;
     }
     return 0;
@@ -113,22 +119,94 @@ int main(int argc, char * argv[])
     arguments.input = NULL;
 	arguments.key = NULL;
 
+	/* ARG PARSING */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
     if (!arguments.key) {
 		printf("No key is provide!\n");
+        argp_help(&argp, stderr, ARGP_HELP_USAGE, "aes-tool");
 		exit(1);
 	}
 
 	if (!arguments.input) {
 		printf("No input is provide!\n");
+		argp_help(&argp, stderr, ARGP_HELP_USAGE, "aes-tool");
 		exit(1);
 	}
 
-	printf("Options: \n Type: %s | Mode: %s \n Input: %s \n | Key: %s\n",
+	printf("Options: \n Type: %s | Mode: %s \n Input: %s \n  Key: %s\n",
 			arguments.mode?"DECRYPT":"ENCRYPT",
 			keylength_to_aes(arguments.keylength),
 			arguments.input,
 			arguments.key
 		  );
+	/* -----------  */
+
+    /*  KEY EXPANSION */
+    uint8_t * expandedKey = malloc(sizeof(uint8_t) * AES_exp_key_length(arguments.keylength));
+	if (!expandedKey)
+		exit(1);
+
+    key_expansion(arguments.key, expandedKey, arguments.keylength);	
+    /* -------------- */
+
+	/* PREPARE INPUT */
+    size_t inputLen = str_len(arguments.input);
+    size_t outputLen = inputLen;
+
+    switch(arguments.mode) {
+		case ENCRYPT:
+		{
+            if (inputLen % AES_BLOCK_SIZE)
+		        outputLen += AES_BLOCK_SIZE - (inputLen % AES_BLOCK_SIZE);
+		}
+		break;
+		case DECRYPT:
+		{
+			//Decode from base64 to binary
+            size_t plainLen;
+		    char *outputPlain = base64_decode(arguments.input, inputLen, &plainLen);
+            arguments.input = outputPlain;
+		    inputLen = plainLen;
+		    outputLen = plainLen;
+		}
+		break;
+	}
+
+    uint8_t output[outputLen];
+	memset(output, 0x00, outputLen);
+	memcpy(output, arguments.input, inputLen);
+    /* ------------- */
+
+    /* ENCRYPT / DECRYPT */
+    int index = 0;
+	while(index < outputLen) {
+		arguments.aes(&output[index],
+				      expandedKey,
+					  arguments.keylength);
+
+		index += AES_BLOCK_SIZE;
+	}
+	/* ----------------- */
+    
+	/* SHOW OUTPUT */
+    switch(arguments.mode) {
+	
+		case ENCRYPT:
+			{
+				//encode binary to base64
+            	size_t b64len;
+                char * output64 = base64_encode(output, outputLen, &b64len); 
+	            printf("Output: \n %s", output64);
+			}
+		break;
+		case DECRYPT:
+			{
+				printf("Output: \n %s", output);
+			}
+		break;
+		default: exit(1);
+	}
+	/*  ----------- */
+
 }

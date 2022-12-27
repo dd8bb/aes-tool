@@ -29,7 +29,7 @@ if(IS_MAIN_PROJECT)
   #include(CTest)
 endif()
 
-set (ARGP_BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rd_parties/argp)
+set (ARGP_BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/argp)
 include_directories(${ARGP_BASE_PATH})
 ################################################################################
 # config.h
