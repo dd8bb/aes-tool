@@ -13,6 +13,8 @@
 #include <string.h>
 
 
+#define FILE_MAX_SIZE 4096
+
 int str_len(char * str) {
     int length = 0;
 	while(1) {
@@ -34,6 +36,7 @@ static struct argp_option options[] = {
     { "encrypt", 'e', 0, 0, "Encrypt given input"},
     { "decrypt", 'd', 0, 0, "Decrypt given input"},
     { "key", 'k', "", 0, "Cipher key. Only admits key lengths of 16, 24 or 32 bytes, corresponding to AES128, AES192 & AES256 standards."},
+    { "file", 'f', "", 0, "Input file. Only admits plaint text files with a size no longer that 4KB"},
     { 0 } 
 };
 
@@ -82,12 +85,48 @@ void parse_key(char *arg, struct arguments * arguments)
 }
 
 
+void read_file(char *arg, struct arguments * arguments)
+{
+	FILE * fp;
+	size_t flen;
+	int result;
+
+	fp = fopen(arg, "rb");
+    fseek(fp, 0, SEEK_END);
+    flen = ftell(fp);
+    rewind(fp);
+
+    if (!flen) {
+		printf("Error reading file. File is empty!\n");
+		exit(1);
+	}
+
+    if (flen > FILE_MAX_SIZE) {
+	    printf("File too large. Max length allowed is %d bytes\n", FILE_MAX_SIZE);
+	    exit(1);
+	}
+
+	arguments->input = (uint8_t *)malloc(sizeof(char)*flen);
+    //TODO check memory error if malloc fails?
+
+  result = fread (arguments->input, 1, flen, fp);
+
+  if (result != flen) {
+      printf("Error reading file.\n");
+	  exit (1);
+  }
+
+    fclose(fp);
+}
+
+
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct arguments *arguments = state->input;
     switch (key) {
     case 'e': {arguments->aes = &AES_cipher; arguments->mode = ENCRYPT;} break;
     case 'd': {arguments->aes = &AES_inv_cipher; arguments->mode = DECRYPT;} break;
     case 'k': parse_key(arg, arguments); break;
+    case 'f': read_file(arg, arguments); break;
     case ARGP_KEY_ARG: {arguments->input = (uint8_t *)arg; return 0;}
     default: return ARGP_ERR_UNKNOWN;
     }
@@ -197,12 +236,12 @@ int main(int argc, char * argv[])
 				//encode binary to base64
             	size_t b64len;
                 char * output64 = base64_encode(output, outputLen, &b64len); 
-	            printf("Output: \n %s", output64);
+	            printf("Output: \n%s\n", output64);
 			}
 		break;
 		case DECRYPT:
 			{
-				printf("Output: \n %s", output);
+				printf("Output: \n%s\n", output);
 			}
 		break;
 		default: exit(1);

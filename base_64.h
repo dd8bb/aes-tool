@@ -63,9 +63,13 @@ unsigned char *base64_decode(const char *data,
  
     if (decoding_table == NULL) build_decoding_table();
  
+    //Remove line feed if exists at end of data
+	if (data[input_length -1] == 0x0A) input_length--;
+
     if (input_length % 4 != 0) return NULL;
  
     *output_length = input_length / 4 * 3;
+
     if (data[input_length - 1] == '=') (*output_length)--;
     if (data[input_length - 2] == '=') (*output_length)--;
  

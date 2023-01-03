@@ -1,8 +1,19 @@
+#### CMAKE #####
 - Custom make install option
-- Check system for installing argp library (Darwin and Win32)
-- Improve line arguments
-- Add option to input/output files
-- change -? to -h to show help
-- Test build for windows, linux and macos
 - Improve main CMakeLists.txt
 - Remove redundancy cmake files on argp library
+
+#### PORTABILITY ####
+- Check system for installing argp library (Darwin and Win32)
+- Test build for windows, linux and macos
+
+#### CODE ####
+- Add option to input/output files | DONE
+- Code file just for input file reading functions
+- Improve aes-tool.c
+- Use of fputs and stderr register to raise errors
+- change -? to -h to show help
+
+#### BUGS ####
+- Check problem with input file in base64 format due to feedline character is added
+
