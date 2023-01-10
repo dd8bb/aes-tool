@@ -26,7 +26,8 @@ int str_len(char * str) {
 	return length;
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------------------------------*/
+/*        ARGP PART */
 const char *argp_program_version = "aes-tool 0.0.0";
 const char *argp_program_bug_address = "<dtolosa.93@gmail.com>";
 static char text[] = "AES Encryption Tool. Command Line program for encrypting/decrypting files.";
@@ -133,7 +134,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     return 0;
 }
 
+static struct argp argp = { options, parse_opt, doc_text, text, 0, 0, 0 };
+/*------------------------------------------------------------------------------------------------------------------------------------------*/
 
+#ifdef AES_TOOL_DEBUG
 char * keylength_to_aes(AES_t type)
 {
 	switch(type)
@@ -144,10 +148,7 @@ char * keylength_to_aes(AES_t type)
 		default: return "";
 	}
 }
-
-
-static struct argp argp = { options, parse_opt, doc_text, text, 0, 0, 0 };
-
+#endif
 
 int main(int argc, char * argv[])
 {
@@ -172,13 +173,14 @@ int main(int argc, char * argv[])
 		argp_help(&argp, stderr, ARGP_HELP_USAGE, "aes-tool");
 		exit(1);
 	}
-
+#ifdef AES_TOOL_DEBUG
 	printf("Options: \n Type: %s | Mode: %s \n Input: %s \n  Key: %s\n",
 			arguments.mode?"DECRYPT":"ENCRYPT",
 			keylength_to_aes(arguments.keylength),
 			arguments.input,
 			arguments.key
 		  );
+#endif
 	/* -----------  */
 
     /*  KEY EXPANSION */
@@ -236,12 +238,12 @@ int main(int argc, char * argv[])
 				//encode binary to base64
             	size_t b64len;
                 char * output64 = base64_encode(output, outputLen, &b64len); 
-	            printf("Output: \n%s\n", output64);
+	            printf("%s\n", output64);
 			}
 		break;
 		case DECRYPT:
 			{
-				printf("Output: \n%s\n", output);
+				printf("%s\n", output);
 			}
 		break;
 		default: exit(1);
