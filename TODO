@@ -1,6 +1,7 @@
 #### CMAKE #####
-- Custom make install option
-- Improve main CMakeLists.txt | DONE1
+- Custom make install option  | DONE
+- Improve main CMakeLists.txt | DONE2
+- Config main cmake and check for some c headers and libc?
 - Remove redundancy cmake files on argp library
 
 #### PORTABILITY ####

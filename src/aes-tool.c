@@ -15,16 +15,6 @@
 
 #define FILE_MAX_SIZE 4096
 
-int str_len(char * str) {
-    int length = 0;
-	while(1) {
-        if (str[length++] == 0x00)
-			break;
-	}
-	length--;
-
-	return length;
-}
 
 /*------------------------------------------------------------------------------------------------------------------------------------------*/
 /*        ARGP PART */
@@ -52,7 +42,7 @@ struct arguments {
 
 void parse_key(char *arg, struct arguments * arguments)
 {
-	int length = str_len(arg);
+	int length = strlen(arg);
 	
 	switch(length) {
 		case 16:
@@ -192,7 +182,7 @@ int main(int argc, char * argv[])
     /* -------------- */
 
 	/* PREPARE INPUT */
-    size_t inputLen = str_len(arguments.input);
+    size_t inputLen = strlen(arguments.input);
     size_t outputLen = inputLen;
 
     switch(arguments.mode) {

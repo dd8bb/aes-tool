@@ -2,7 +2,7 @@
 Program to be used as a command line tool.
 Encrypt/Decrypt files using AES standard.
 
-# INSTALLATION
+# BUILD 
 Simplest, on aes-tool base dir (same as CMakeList.txt) :
 
 ```
@@ -19,6 +19,22 @@ make
 
 Now on aes-tool base dir you will have a new folder called bin where you will find aes-tool executable.
 
-**DEBUG**
-If wanna debug aes-tool when calling cmake add following options:
-```cmake .. -DDEBUG```
+## INDICATE BUILD TYPE
+
+```
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Debug
+```
+
+or
+
+```
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
+```
+
+# INSTALL
+
+Build the project as release, then on your build project just:
+
+```
+sudo make install
+```

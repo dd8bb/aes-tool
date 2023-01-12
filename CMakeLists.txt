@@ -10,6 +10,10 @@ if (APPLE OR WIN32)
 
     include_directories("${AES_TOOL_PATH}/argp/include/argp-standalone")
     include("${AES_TOOL_PATH}/argp/CMakeLists.txt")
+else()
+	#cmake LINUX symbol is bugged and doesn't work
+	#so we set a variable to use it instead
+	set(LINUX_SYS 1)
 endif()
 #----
 
@@ -22,10 +26,21 @@ add_executable(aes-tool "${AES_TOOL_SRC_PATH}/aes-tool.c")
 target_link_libraries(aes-tool -L${AES_TOOL_PATH}/lib)
 target_link_libraries(aes-tool argp-standalone)
 
-if (DEFINED DEBUG)
+#Debug build options & definitions
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
     message(STATUS "Debug mode")
 	target_compile_definitions(aes-tool
 		PUBLIC AES_TOOL_DEBUG)
+endif()
+
+#Release options & definitions
+if (CMAKE_BUILD_TYPE MATCHES "Release")
+	message(STATUS "Release mode")
+	set(CMAKE_INSTALL_CONFIG_NAME "Release")
+endif()
+
+if (APPLE OR LINUX_SYS)
+	install(TARGETS aes-tool CONFIGURATIONS Release)
 endif()
 
 target_sources(${PROJECT_NAME} PRIVATE 
