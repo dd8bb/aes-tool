@@ -1,12 +1,29 @@
 #ifndef _AES_ENCRYPTION_TOOL_CONST_H_
 #define _AES_ENCRYPTION_TOOL_CONST_H_
 
+/*****************************************************************************/
+/*                    AES TOOL DEFINITIONS                                   */
+
+/*
+ *  AES tool modes
+ */
+#define AES_TOOL_ENCRYPT  0
+#define AES_TOOL_DECRYPT  1
+
+/*
+ *   Error handling
+ */
+#define AES_TOOL_ERR_OK                     0
+#define AES_TOOL_ERR_INVALID_KEY_LENGTH    -1
+#define AES_TOOL_ERR_INVALID_INPUT_LENGTH  -2
+
+/*****************************************************************************/
 
 /*****************************************************************************/
 /*                    AES CONSTANT DEFINITIONS                               */
 
 
-/*  
+/*
  *  AES 'flavors' based on each different key length
  */
 typedef enum {
@@ -71,7 +88,7 @@ static inline int AES_num_rounds(AES_t type)
 		case AES128: return AES128_NUM_ROUNDS;
 		case AES192: return AES192_NUM_ROUNDS;
 		case AES256: return AES256_NUM_ROUNDS;
-		default: return 0; 
+		default: return 0;
 	}
 }
 
@@ -95,10 +112,9 @@ static inline int AES_exp_key_length(AES_t type)
 		case AES128: return AES128_EXP_KEY_LENGTH;
 		case AES192: return AES192_EXP_KEY_LENGTH;
 		case AES256: return AES256_EXP_KEY_LENGTH;
-        default: return 0;
+    default: return 0;
 	}
 }
 /*****************************************************************************/
-
 
 #endif

@@ -17,7 +17,7 @@
 
 #### CRYPTOGRAPHY ####
 - Use of PBKDF to derive user input key.
-- Use of CBC (cipher block chaining) instead of actual ECB (electronic codebook) mode.
+- Use of CBC (cipher block chaining) instead of actual ECB (electronic codebook) mode. | DONE
 
 #### BUGS ####
 - Check problem with input file in base64 format due to feedline character is added | DONE

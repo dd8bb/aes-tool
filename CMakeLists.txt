@@ -48,8 +48,12 @@ target_sources(${PROJECT_NAME} PRIVATE
 	"${AES_TOOL_SRC_PATH}/aes_const.h"
 	"${AES_TOOL_SRC_PATH}/aes_core.h"
 	"${AES_TOOL_SRC_PATH}/aes_core.c"
+    "${AES_TOOL_SRC_PATH}/aes_context.h"
+	"${AES_TOOL_SRC_PATH}/aes_context.c"
 	"${AES_TOOL_SRC_PATH}/aes_cipher.h"
 	"${AES_TOOL_SRC_PATH}/aes_inv_cipher.h"
+	"${AES_TOOL_SRC_PATH}/aes_crypt.h"
+    "${AES_TOOL_SRC_PATH}/aes_crypt.c"
 	"${AES_TOOL_SRC_PATH}/base_64.h"
 	)
 

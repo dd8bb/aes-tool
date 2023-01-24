@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 
+
 void key_expansion(uint8_t * key, uint8_t * expandedKey, AES_t type);
 
 void add_round_key(uint8_t * state, uint8_t * roundKey);
