@@ -29,7 +29,7 @@ static inline void rot_word(uint8_t word[WORD_SIZE])
     if (is_big_endian())
         *w = (*w << 8 | ((*w & 0xFF000000) >> 24));
     else
-		    *w = (*w >> 8 | ((*w & 0xFF) << 24));
+	    *w = (*w >> 8 | ((*w & 0xFF) << 24));
 }
 
 
@@ -50,28 +50,28 @@ void key_expansion(uint8_t * key, uint8_t * expandedKey, AES_t type)
 {
     int keyLength = AES_key_length(type);
     int expKeyLength = AES_exp_key_length(type);
-	  int generatedBytes = 0;
+	int generatedBytes = 0;
 
 	//First bytes of expanded keys are the master key bytes
     memcpy(expandedKey, key, keyLength);
     generatedBytes += keyLength;
 
     int rconIndex=1;
-	  uint8_t prevWord[WORD_SIZE];
-	  while (generatedBytes < expKeyLength)
-	  {
-		    memcpy(prevWord, &expandedKey[generatedBytes - WORD_SIZE], WORD_SIZE);
+	uint8_t prevWord[WORD_SIZE];
+	while (generatedBytes < expKeyLength)
+	{
+	   memcpy(prevWord, &expandedKey[generatedBytes - WORD_SIZE], WORD_SIZE);
 
-	      if ((generatedBytes % keyLength) == 0)
-		        complex_func(prevWord, rconIndex++);
-		    else if ((type == AES256) && ((generatedBytes % keyLength) == 16))
-		        sub_word(prevWord);
+	   if ((generatedBytes % keyLength) == 0)
+	        complex_func(prevWord, rconIndex++);
+	   else if ((type == AES256) && ((generatedBytes % keyLength) == 16))
+	        sub_word(prevWord);
 
-		    for (int i = 0; i < WORD_SIZE; i++) {
-			      expandedKey[generatedBytes] = expandedKey[generatedBytes - keyLength] ^ prevWord[i];
-		        generatedBytes++;
-		    }
-	  }
+	   for (int i = 0; i < WORD_SIZE; i++) {
+	        expandedKey[generatedBytes] = expandedKey[generatedBytes - keyLength] ^ prevWord[i];
+	        generatedBytes++;
+	   }
+    }
 
 }
 

@@ -26,19 +26,21 @@ static char text[] = "AES Encryption Tool. Command Line program for encrypting/d
 static char doc_text[] = "";
 
 static struct argp_option options[] = {
-    { "encrypt", 'e',  0, 0, "Encrypt given input"},
+    { "encrypt", 'e',  0, 0, "Encrypt given input. This is the default option"},
     { "decrypt", 'd',  0, 0, "Decrypt given input"},
-    { "key",     'k', "value", 0, "Cipher key. Only admits key lengths of 16, 24 or 32 bytes, corresponding to AES128, AES192 & AES256 standards."},
+    { "key",     'k', "value", 0, "Cipher key. Only admits key lengths of 16, 24 or 32 bytes, corresponding to AES128, AES192 & AES256 standards. Also accepts value to be a file path"},
     { "file",    'f', "path", 0, "Input file. Only admits plain text files with a size no longer that 4KB"},
     { "ivector", 'v', "", 0, "[Optional].Initialization vector for CBC mode. If this option is not indicated a default IV is used." },
     { "ecb",      1,   0, 0, "Use of Electronic CodeBook (ECB) cipher mode."},
 	{ "cbc",      2,   0, 0, "Use of Cipher Block Chaining (CBC) cipher mode. This option is set by default." },
-    { 0 }
+	{ "raw",     'r',  0, 0, "Output (encrypt) and Input (decrypt) are not treated as base64 format."},
+	{ 0 }
 };
 
 struct arguments {
 	int operation;
     int mode;
+    int raw;
 	aes_context ctx;
     size_t inputLen;
     uint8_t * input;
@@ -46,24 +48,25 @@ struct arguments {
 };
 
 
-void parse_key(char *arg, struct arguments * arguments)
-{
-	int length = strlen(arg);
-    int err;
-    
-	err = aes_ctx_set_key(&arguments->ctx, (uint8_t *)arg, length);
+int is_a_file(char *arg) {
+    FILE * fp;
+	int res = 0;
 
-	if (err == AES_TOOL_ERR_INVALID_KEY_LENGTH) {
-	    printf("Key length not valid. Lengths must be of 16, 24 or 32 bytes. Given length: %d\n", length);
-	    exit(1);
+	fp = fopen(arg, "r");
+	if (fp) {
+		fclose(fp);
+		res++;
 	}
+
+	return res;
 }
 
 
-void read_file(char *arg, struct arguments * arguments)
+void read_file(char *arg, uint8_t ** data, size_t * length)
 {
 	FILE * fp;
 	size_t flen;
+    uint8_t * ptr;
 	int result;
 
 	fp = fopen(arg, "rb");
@@ -81,17 +84,67 @@ void read_file(char *arg, struct arguments * arguments)
 	    exit(1);
 	}
 
-    arguments->inputLen = flen;
-	arguments->input = (uint8_t *)malloc(sizeof(char)*flen);
+	ptr = (uint8_t *)malloc(sizeof(uint8_t)*flen);
 
-    result = fread (arguments->input, 1, flen, fp);
+    result = fread (ptr, 1, flen, fp);
 
     if (result != flen) {
         printf("Error reading file.\n");
 	    exit (1);
     }
 
+    if (ptr[flen-1] == 0x0A)
+		flen--;
+
     fclose(fp);
+
+    *data = ptr;
+	*length = flen;
+}
+
+
+void parse_key(char *arg, struct arguments * arguments)
+{
+    uint8_t * key;
+	size_t length;
+    int err;
+    
+    if (is_a_file(arg)) {
+	    read_file(arg, &key, &length);
+	}
+	else {
+	    key = (uint8_t*)arg;
+		length = strlen(arg);
+	}
+
+	err = aes_ctx_set_key(&arguments->ctx, key, length);
+
+	if (err == AES_TOOL_ERR_INVALID_KEY_LENGTH) {
+	    printf("Key length not valid. Lengths must be of 16, 24 or 32 bytes. Given length: %zu\n", length);
+	    exit(1);
+	}
+}
+
+
+void parse_vector(char *arg, struct arguments * arguments)
+{
+	uint8_t * vector;
+	size_t length;
+
+	if (is_a_file(arg)) {
+		read_file(arg, &vector, &length);
+	}
+	else {
+		vector = (uint8_t*)arg;
+		length = strlen(arg);
+	}
+
+    if (length != AES_BLOCK_SIZE) {
+		printf("Init. Vector size not valid. Length must be 16 bytes.\n");
+		exit(1);
+	}
+
+	aes_ctx_set_iv(&arguments->ctx, vector);
 }
 
 
@@ -103,11 +156,13 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     case 'e': arguments->operation = AES_TOOL_ENCRYPT; break;
     case 'd': arguments->operation = AES_TOOL_DECRYPT; break;
     case 'k': parse_key(arg, arguments); break;
-    case 'f': read_file(arg, arguments); break;
+    case 'v': parse_vector(arg, arguments); break;
+    case 'f': read_file(arg, &arguments->input, &arguments->inputLen); break;
+    case 'r': arguments->raw = 1; break;
     case ARGP_KEY_ARG: 
 			  {
 				  arguments->inputLen = strlen(arg);
-                  arguments->input = (uint8_t *)malloc(sizeof(char)*arguments->inputLen);
+                  arguments->input = (uint8_t *)malloc(sizeof(uint8_t)*arguments->inputLen);
                   memcpy(arguments->input, arg, arguments->inputLen);
 				  break;
 			  }
@@ -137,6 +192,9 @@ int main(int argc, char * argv[])
     struct arguments arguments;
 
     arguments.input = NULL;
+    arguments.raw   = 0;
+    arguments.operation = AES_TOOL_ENCRYPT;
+    arguments.mode  = AES_TOOL_CBC_MODE;
 	arguments.crypt = &aes_crypt_cbc;
     aes_ctx_init(&arguments.ctx);
 
@@ -184,10 +242,12 @@ int main(int argc, char * argv[])
 		case AES_TOOL_DECRYPT:
 		{
 			//Decode from base64 to binary
-            size_t plainLen;
-		    uint8_t *outputPlain = base64_decode(arguments.input, arguments.inputLen, &plainLen);
-            arguments.input = outputPlain;
-		    arguments.inputLen = plainLen;
+		    if(!arguments.raw) {	
+                size_t plainLen;
+		        uint8_t *outputPlain = base64_decode((const char *)arguments.input, arguments.inputLen, &plainLen);
+                arguments.input = outputPlain;
+		        arguments.inputLen = plainLen;
+			}
 		}
 		break;
 	}
@@ -207,9 +267,14 @@ int main(int argc, char * argv[])
 		case AES_TOOL_ENCRYPT:
 			{
 				//encode binary to base64
-            	size_t b64len;
-                char * output64 = base64_encode(output, arguments.inputLen, &b64len);
-	            printf("%s\n", output64);
+            	if (!arguments.raw) {
+				    size_t b64len;
+                    char * output64 = base64_encode(output, arguments.inputLen, &b64len);
+	                printf("%s\n", output64);
+				}
+				else {
+					printf("%s\n", output);
+				}
 			}
 		break;
 		case AES_TOOL_DECRYPT:
