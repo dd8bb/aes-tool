@@ -44,6 +44,7 @@ struct arguments {
 	aes_context ctx;
     size_t inputLen;
     uint8_t * input;
+    uint8_t * output;
     int (*crypt) (aes_context *, int, size_t, uint8_t *, uint8_t *);
 };
 
@@ -100,6 +101,17 @@ void read_file(char *arg, uint8_t ** data, size_t * length)
 
     *data = ptr;
 	*length = flen;
+}
+
+void argp_init(struct arguments * arguments)
+{
+    arguments->input     = NULL;
+    arguments->output    = NULL;
+    arguments->raw       = 0;
+    arguments->operation = AES_TOOL_ENCRYPT;
+    arguments->mode      = AES_TOOL_CBC_MODE;
+	arguments->crypt     = &aes_crypt_cbc;
+    aes_ctx_init(&arguments->ctx);
 }
 
 
@@ -191,13 +203,9 @@ int main(int argc, char * argv[])
 {
     struct arguments arguments;
 
-    arguments.input = NULL;
-    arguments.raw   = 0;
-    arguments.operation = AES_TOOL_ENCRYPT;
-    arguments.mode  = AES_TOOL_CBC_MODE;
-	arguments.crypt = &aes_crypt_cbc;
-    aes_ctx_init(&arguments.ctx);
+    argp_init(&arguments);
 
+    
 	/* ARG PARSING */
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
 
@@ -252,13 +260,13 @@ int main(int argc, char * argv[])
 		break;
 	}
 
-    uint8_t output[arguments.inputLen];
-	memcpy(output, arguments.input, arguments.inputLen);
+    arguments.output = (uint8_t *)malloc(sizeof(uint8_t)*arguments.inputLen); 
+    //uint8_t output[arguments.inputLen];
     /* ------------- */
 
     /* ENCRYPT / DECRYPT */
     int error;
-	error = arguments.crypt(&arguments.ctx, arguments.operation, arguments.inputLen, arguments.input, output);
+	error = arguments.crypt(&arguments.ctx, arguments.operation, arguments.inputLen, arguments.input, arguments.output);
 	/* ----------------- */
 
 	/* SHOW OUTPUT */
@@ -269,17 +277,24 @@ int main(int argc, char * argv[])
 				//encode binary to base64
             	if (!arguments.raw) {
 				    size_t b64len;
-                    char * output64 = base64_encode(output, arguments.inputLen, &b64len);
+                    char * output64 = base64_encode(arguments.output, arguments.inputLen, &b64len);
 	                printf("%s\n", output64);
 				}
 				else {
-					printf("%s\n", output);
+					printf("%s\n", arguments.output);
 				}
 			}
 		break;
 		case AES_TOOL_DECRYPT:
 			{
-				printf("%s\n", output);
+				//need to iterate over output since print as a string could be wrong due to the presence of zeroes
+				if (!arguments.raw) {
+				    printf("%s\n", arguments.output);
+				}
+				else {
+				    for (int i=0; i < arguments.inputLen; i++)
+					    printf("%c", arguments.output[i]);
+				}
 			}
 		break;
 		default: exit(1);

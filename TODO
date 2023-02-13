@@ -1,24 +1,17 @@
 #### CMAKE #####
-- Custom make install option  | DONE
-- Improve main CMakeLists.txt | DONE2
-- Config main cmake and check for some c headers and libc?
-- Remove redundancy cmake files on argp library
+- Improve adding argp
+- Add argp directly from repo
 
 #### PORTABILITY ####
-- Check system for installing argp library (Darwin and Win32) | DONE
-- Test build for windows, linux and macos
+- Test build for windows
 
 #### CODE ####
-- Add option to input/output files | DONE
-- Code file just for input file reading functions | NOT NEEDED
-- Improve aes-tool.c | DONE
+- Add option to input/output files 
+- Code just for file functions.  
 - Use of fputs and stderr register to raise errors
-- change -? to -h to show help
 
 #### CRYPTOGRAPHY ####
 - Use of PBKDF to derive user input key.
-- Use of CBC (cipher block chaining) instead of actual ECB (electronic codebook) mode. | DONE
 
 #### BUGS ####
-- Check problem with input file in base64 format due to feedline character is added | DONE
 

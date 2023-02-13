@@ -8,7 +8,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${AES_TOOL_PATH}/lib")
 if (APPLE OR WIN32)
     message(STATUS "Not linux system, installing argp...")
 
-    include_directories("${AES_TOOL_PATH}/argp/include/argp-standalone")
     include("${AES_TOOL_PATH}/argp/CMakeLists.txt")
 else()
 	#cmake LINUX symbol is bugged and doesn't work
@@ -21,39 +20,5 @@ project(aes-tool VERSION 0.0.0 LANGUAGES C)
 
 set(AES_TOOL_SRC_PATH "${AES_TOOL_PATH}/src")
 
-add_executable(aes-tool "${AES_TOOL_SRC_PATH}/aes-tool.c")
-
-target_link_libraries(aes-tool -L${AES_TOOL_PATH}/lib)
-target_link_libraries(aes-tool argp-standalone)
-
-#Debug build options & definitions
-if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    message(STATUS "Debug mode")
-	target_compile_definitions(aes-tool
-		PUBLIC AES_TOOL_DEBUG)
-endif()
-
-#Release options & definitions
-if (CMAKE_BUILD_TYPE MATCHES "Release")
-	message(STATUS "Release mode")
-	set(CMAKE_INSTALL_CONFIG_NAME "Release")
-endif()
-
-if (APPLE OR LINUX_SYS)
-	install(TARGETS aes-tool CONFIGURATIONS Release)
-endif()
-
-target_sources(${PROJECT_NAME} PRIVATE 
-	"${AES_TOOL_SRC_PATH}/aes-tool.c"
-	"${AES_TOOL_SRC_PATH}/aes_const.h"
-	"${AES_TOOL_SRC_PATH}/aes_core.h"
-	"${AES_TOOL_SRC_PATH}/aes_core.c"
-    "${AES_TOOL_SRC_PATH}/aes_context.h"
-	"${AES_TOOL_SRC_PATH}/aes_context.c"
-	"${AES_TOOL_SRC_PATH}/aes_cipher.h"
-	"${AES_TOOL_SRC_PATH}/aes_inv_cipher.h"
-	"${AES_TOOL_SRC_PATH}/aes_crypt.h"
-    "${AES_TOOL_SRC_PATH}/aes_crypt.c"
-	"${AES_TOOL_SRC_PATH}/base_64.h"
-	)
+include("${AES_TOOL_SRC_PATH}/CMakeLists.txt")
 

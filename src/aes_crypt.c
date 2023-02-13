@@ -73,7 +73,6 @@ int aes_crypt_cbc(aes_context * ctx, int mode, size_t inputLen, uint8_t * input,
 		}
     }
 	else {
-		memcpy(output, input, inputLen);
 
 		while (index < inputLen) {
 
