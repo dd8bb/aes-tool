@@ -41,6 +41,8 @@ struct arguments {
 	int operation;
     int mode;
     int raw;
+    int base64;
+    int writeOutput;
 	aes_context ctx;
     size_t inputLen;
     uint8_t * input;
@@ -261,7 +263,6 @@ int main(int argc, char * argv[])
 	}
 
     arguments.output = (uint8_t *)malloc(sizeof(uint8_t)*arguments.inputLen); 
-    //uint8_t output[arguments.inputLen];
     /* ------------- */
 
     /* ENCRYPT / DECRYPT */

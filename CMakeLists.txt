@@ -4,11 +4,10 @@ set(AES_TOOL_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${AES_TOOL_PATH}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${AES_TOOL_PATH}/lib")
 
-#Install argp library if needed
+
 if (APPLE OR WIN32)
     message(STATUS "Not linux system, installing argp...")
-
-    include("${AES_TOOL_PATH}/argp/CMakeLists.txt")
+    add_subdirectory(argp)
 else()
 	#cmake LINUX symbol is bugged and doesn't work
 	#so we set a variable to use it instead
