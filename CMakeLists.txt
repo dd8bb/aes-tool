@@ -19,5 +19,5 @@ project(aes-tool VERSION 0.0.0 LANGUAGES C)
 
 set(AES_TOOL_SRC_PATH "${AES_TOOL_PATH}/src")
 
-include("${AES_TOOL_SRC_PATH}/CMakeLists.txt")
+add_subdirectory(src)
 

@@ -23,7 +23,7 @@ target_sources(${PROJECT_NAME} PRIVATE ${HEADERS} ${SOURCES})
 if (APPLE OR WIN32)
     #include_directories("${ARGP_BASE_PATH}/include/argp-standalone")
     target_link_libraries(${PROJECT_NAME} argp-standalone)
-    target_include_directories(${PROJECT_NAME} argp-standalone)
+	target_include_directories(${PROJECT_NAME} PRIVATE argp-standalone)
 endif()
 
 if (CMAKE_BUILD_TYPE MATCHES "Debug")

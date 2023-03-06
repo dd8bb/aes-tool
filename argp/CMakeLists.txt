@@ -29,8 +29,7 @@ if(IS_MAIN_PROJECT)
   #include(CTest)
 endif()
 
-set (ARGP_BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/argp)
-include_directories(${ARGP_BASE_PATH})
+set (ARGP_BASE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 ################################################################################
 # config.h
 ################################################################################
@@ -125,7 +124,7 @@ endif()
 # Subdirectories
 ################################################################################
 
-add_subdirectory(${ARGP_BASE_PATH}/src)
+add_subdirectory(src)
 
 if((IS_MAIN_PROJECT OR argp-standalone_BUILD_TESTING) AND BUILD_TESTING)
   add_subdirectory(test)

@@ -51,4 +51,5 @@ target_include_directories(
   PRIVATE
   "${PROJECT_BINARY_DIR}"
   PUBLIC
-  ../include/argp-standalone)
+  ../include/argp-standalone
+  ${ARGP_BASE_PATH})

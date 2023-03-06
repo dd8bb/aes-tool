@@ -50,6 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+config.h
 
 # Build directory in top level source directory
 /build*

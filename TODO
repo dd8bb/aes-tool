@@ -3,7 +3,7 @@
 - Add argp directly from repo
 
 #### PORTABILITY ####
-- Test build for windows
+- Test build for windows . MINGW CHECKED
 
 #### CODE ####
 - Add option to input/output files 
